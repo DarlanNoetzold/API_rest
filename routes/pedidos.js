@@ -3,27 +3,27 @@ const router = express.Router();
 
 router.get('/', (req, res, next) =>{
     res.status(200).send({
-        mensagem: 'Usando GET da nova rota'
+        mensagem: 'Usando GET da nova rota PEDIDOS'
     });
 });
 
 router.post('/',(req, res, next) =>{
     res.status(201).send({
-        mensagem: 'Usando POST da nova rota'
+        mensagem: 'Usando POST da nova rota PEDIDOS'
     });
 }); 
 
-router.get('/:id_produto', (req, res, next) =>{
-    const id = req.params.id_produto;
+router.get('/:id_pedido', (req, res, next) =>{
+    const id = req.params.id_pedido;
 
     if(id == 1){
         res.status(200).send({
-            mensagem: 'Id especial',
+            mensagem: 'Id especial PEDIDOS',
             id: id
         });
     }else{
         res.status(200).send({
-            mensagem: 'Usando GET da nova rota',
+            mensagem: 'Usando GET da nova rota PEDIDOS',
             id: id
         });
     }
@@ -32,13 +32,13 @@ router.get('/:id_produto', (req, res, next) =>{
 
 router.patch('/', (req, res, next) =>{
     res.status(200).send({
-        mensagem: 'Usando patch da nova rota'
+        mensagem: 'Usando patch da nova rota PEDIDOS'
     });
 });
 
 router.delete('/', (req, res, next) =>{
     res.status(200).send({
-        mensagem: 'Usando delete da nova rota'
+        mensagem: 'Usando delete da nova rota PEDIDOS'
     });
 });
 
