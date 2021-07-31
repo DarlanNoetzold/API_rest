@@ -1,19 +1,21 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
-const bodyParser = require('bodyParser');
+const bodyParser = require('body-parser');
 
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
-const bodyParser = require('body-parser');
 
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));  //apenas dados simples
+app.use(bodyParser.json());  //apenas formato json
 
 app.use('/produtos', rotaProdutos);
 app.use('/pedidos', rotaPedidos);
 
+
+
+// Tratando Erros
 app.use((req, res, next) =>{
     const erro = new Error('Não encontrado');
     erro.status =404;

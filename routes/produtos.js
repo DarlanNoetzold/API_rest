@@ -8,8 +8,13 @@ router.get('/', (req, res, next) =>{
 });
 
 router.post('/',(req, res, next) =>{
+    const produto = {
+        nome: req.body.nome,
+        preco: req.body.preco
+    }
     res.status(201).send({
-        mensagem: 'Usando POST da nova rota'
+        mensagem: 'Insere um produto',
+        produtoCriado: produto
     });
 }); 
 
