@@ -30,14 +30,14 @@ router.get('/:id_pedido', (req, res, next) =>{
         res.status(200).send({
             mensagem: 'Usando GET da nova rota PEDIDOS',
             id: id
-        });
+        }); 
     }
     
 });
 
 router.patch('/', (req, res, next) =>{
     res.status(200).send({
-        mensagem: 'Usando patch da nova rota PEDIDOS'
+        mensagem: 'Usando patch da rota PEDIDOS'
     });
 });
 
