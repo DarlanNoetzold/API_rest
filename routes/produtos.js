@@ -3,9 +3,17 @@ const router = express.Router();
 const mysql = require('../mysql').pool;
 
 router.get('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando GET da nova rota'
-    });
+    mysql.getConnection((error, conn) =>{
+        if(error) { return res.status(500).send({ error: error})}
+        conn.query(
+            'SELECT * FROM products;',
+            (error, resultado, fields) => {
+                if(error) { return res.status(500).send({ error: error})}
+                return res.status(200).send({response: resultado})
+            }
+        )
+    })
+
 });
 
 router.post('/',(req, res, next) =>{
@@ -17,21 +25,17 @@ router.post('/',(req, res, next) =>{
     }
 
     mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({ error: error})}
         conn.query(
             'INSERT INTO products (name, price, productImage, categoryId) VALUES (?,?,?,?)',
             [req.body.name, req.body.price, req.body.productImage, req.body.categoryId],
             (error, resultado, field) =>{
                 conn.release();
 
-                if(error){
-                    res.status(500).send({
-                        error: error,
-                        response: null
-                    })
-                }
-                console.error(error);
+                if(error) { return res.status(500).send({ error: error})}
                 res.status(201).send({
-                    mensagem: 'Produto inserido com sucesso'
+                    mensagem: 'Produto inserido com sucesso',
+                    productName: resultado.name
                 });
             }
         )
@@ -41,31 +45,62 @@ router.post('/',(req, res, next) =>{
 }); 
 
 router.get('/:id_produto', (req, res, next) =>{
-    const id = req.params.id_produto;
-
-    if(id == 1){
-        res.status(200).send({
-            mensagem: 'Id especial',
-            id: id
-        });
-    }else{
-        res.status(200).send({
-            mensagem: 'Usando GET da nova rota',
-            id: id
-        });
-    }
+    mysql.getConnection((error, conn) =>{
+        if(error) { return res.status(500).send({ error: error})}
+        conn.query(
+            'SELECT * FROM products WHERE productId = ?;',
+            [req.params.id_produto],
+            (error, resultado, fields) => {
+                if(error) { return res.status(500).send({ error: error})}
+                return res.status(200).send({response: resultado})
+            }
+        )
+    })
     
 });
 
 router.patch('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando patch da nova rota'
-    });
+    mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({ error: error })}
+            conn.query(
+                `UPDATE products
+                    SET name = ?,
+                        price = ?,
+                        productImage = ?,
+                        categoryId = ?
+                    WHERE productId = ?
+                `,
+                [req.body.name, req.body.price, req.body.productImage, req.body.categoryId, req.body.productId],
+                (error, resultado, field) =>{
+                    conn.release();
+
+                    if(error) { return res.status(500).send({ error: error })}
+                    res.status(202).send({
+                        mensagem: 'Produto atualizado com sucesso',
+                        productName: resultado.name
+                    });
+                }
+            )
+        });
 });
 
+
 router.delete('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando delete da nova rota'
+    mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({ error: error })}
+        conn.query(
+            `DELETE FROM products WHERE productId = ?`,
+            [req.body.productId],
+            (error, resultado, field) => {
+                conn.release();
+
+                if (error) { return res.status(500).send({ error: error }) }
+                res.status(202).send({
+                    mensagem: 'Produto deletado com sucesso',
+                    productName: resultado.name
+                });
+            }
+        )
     });
 });
 
