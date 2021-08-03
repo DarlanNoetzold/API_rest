@@ -9,7 +9,25 @@ router.get('/', (req, res, next) =>{
             'SELECT * FROM products;',
             (error, resultado, fields) => {
                 if(error) { return res.status(500).send({ error: error})}
-                return res.status(200).send({response: resultado})
+                const response = {
+                    quantidade: resultado.length,
+                    produtos: resultado.map(prod =>{
+                        return{
+                            productId: prod.productId,
+                            name: prod.name,
+                            price: prod.price,
+                            categoryId: prod.categoryId,
+                            productImage: prod.productImage,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retorna todos os produtos',
+                                url: 'http://localhost:3000/produtos/' + prod.productId
+                            }
+                        }
+                    })
+                }
+
+                return res.status(200).send(response)
             }
         )
     })
