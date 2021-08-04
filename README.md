@@ -1,2 +1,4 @@
 # API_rest
- Uma API Rest com Node.js
+ 
+* Uma API Rest com Node.js
+* Em desenvolvimento... 
