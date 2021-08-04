@@ -1,49 +1,131 @@
 const express = require('express');
 const router = express.Router();
+const mysql = require('../mysql').pool;
 
 router.get('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando GET da nova rota PEDIDOS'
-    });
+    mysql.getConnection((error, conn) =>{
+        if(error) { return res.status(500).send({ error: error})}
+        conn.query(
+            'SELECT * FROM orders;',
+            (error, result, fields) => {
+                if(error) { return res.status(500).send({ error: error})}
+                const response = {
+                    quantity: result.length,
+                    orders: result.map(order =>{
+                        return{
+                            orderId: order.orderId,
+                            productId: order.productId,
+                            quantity: order.quantity,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retorna a documentação de um pedido em específico',
+                                url: 'http://localhost:3000/pedidos/' + order.orderId
+                            }
+                        }
+                    })
+                }
+
+                return res.status(200).send(response)
+            }
+        )
+    })
 });
 
 router.post('/',(req, res, next) =>{
     const pedido = {
-        id_produto: req.body.id_produto,
-        quantidade: req.body.quantidade
+        orderId: req.body.orderId,
+        productId: req.body.productId,
+        quantity: req.body.quantity
     }
-    res.status(201).send({
-        mensagem: 'Insere um pedido',
-        pedidoCriado: pedido
-    });
+        mysql.getConnection((error, conn) => {
+            if(error) { return res.status(500).send({ error: error})}
+            conn.query(
+                'INSERT INTO orders (productId, quantity) VALUES (?,?)',
+                [req.body.productId, req.body.quantity],
+                (error, result, field) =>{
+                    conn.release();
+    
+                    if(error) { return res.status(500).send({ error: error})}
+                    const response = {
+                        mensagem: 'Pedido inserido com sucesso',
+                        pedidoCriado:{
+                            orderId: result.orderId,
+                            productId: req.body.productId,
+                            quantity: req.body.quantity,
+                            request: {
+                                tipo: 'POST',
+                                descricao: 'Retorna todos os pedidos',
+                                url: 'http://localhost:3000/pedidos/'
+                            }
+                        }
+                    }
+                    res.status(201).send(response);
+                }
+            )
+        })
 }); 
 
-router.get('/:id_pedido', (req, res, next) =>{
-    const id = req.params.id_pedido;
+router.get('/:orderId', (req, res, next) =>{
+    mysql.getConnection((error, conn) =>{
+        if(error) { return res.status(500).send({ error: error})}
+        conn.query(
+            'SELECT * FROM orders WHERE orderId = ?;',
+            [req.params.orderId],
+            (error, result, fields) => {
+                if(error) { return res.status(500).send({ error: error})}
 
-    if(id == 1){
-        res.status(200).send({
-            mensagem: 'Id especial PEDIDOS',
-            id: id
-        });
-    }else{
-        res.status(200).send({
-            mensagem: 'Usando GET da nova rota PEDIDOS',
-            id: id
-        }); 
-    }
+                if(result.lenght == 0){
+                    return res.status(404).send({
+                        mensagem: 'Não foi encontrado o pedido com este ID'
+                    })
+
+                }
+                const response = {
+                    order:{
+                        orderId: result[0].orderId,
+                        productId: result[0].productId,
+                        quantity: result[0].quantity,
+                        request: {
+                            tipo: 'GET',
+                            descricao: 'Returna todos os pedidos',
+                            url: 'http://localhost:3000/pedidos/'
+                        }
+                    }
+                }
+                res.status(200).send(response);            }
+        )
+    })
     
 });
 
-router.patch('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando patch da rota PEDIDOS'
-    });
-});
-
 router.delete('/', (req, res, next) =>{
-    res.status(200).send({
-        mensagem: 'Usando delete da nova rota PEDIDOS'
+    mysql.getConnection((error, conn) => {
+        if(error) { return res.status(500).send({ error: error })}
+        conn.query(
+            `DELETE FROM products WHERE productId = ?`,
+            [req.body.productId],
+            (error, result, field) => {
+                conn.release();
+
+                if (error) { return res.status(500).send({ error: error }) }
+                const response = {
+                    mensagem: 'Produto removido com sucesso',
+                    request: {
+                        tipo: 'POST',
+                        descricao: 'Retorna o produto atualizado',
+                        url: 'http://localhost:3000/produtos/',
+                        body: {
+                            name: 'String',
+                            price: 'Number',
+                            productImage: 'String',
+                            categoryId: 'Number'
+
+                        }
+                    }
+                }
+                res.status(202).send(response);
+            }
+        )
     });
 });
 
