@@ -32,23 +32,25 @@ router.get('/', (req, res, next) =>{
 });
 
 router.post('/',(req, res, next) =>{
-    const pedido = {
-        orderId: req.body.orderId,
-        productId: req.body.productId,
-        quantity: req.body.quantity
-    }
-        mysql.getConnection((error, conn) => {
-            if(error) { return res.status(500).send({ error: error})}
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
+        conn.query('SELECT * FROM products where productId = ?', [req.body.productId], (error, result, field) => {
+            if (error) { return res.status(500).send({ error: error }) }
+            if(result.lenght == 0){
+                return res.status(404).send({
+                    mensagem: 'Não foi encontrado o produto com este ID'
+                })
+            }
             conn.query(
                 'INSERT INTO orders (productId, quantity) VALUES (?,?)',
                 [req.body.productId, req.body.quantity],
-                (error, result, field) =>{
+                (error, result, field) => {
                     conn.release();
     
-                    if(error) { return res.status(500).send({ error: error})}
+                    if (error) { return res.status(500).send({ error: error }) }
                     const response = {
                         mensagem: 'Pedido inserido com sucesso',
-                        pedidoCriado:{
+                        pedidoCriado: {
                             orderId: result.orderId,
                             productId: req.body.productId,
                             quantity: req.body.quantity,
@@ -63,6 +65,7 @@ router.post('/',(req, res, next) =>{
                 }
             )
         })
+    });
 }); 
 
 router.get('/:orderId', (req, res, next) =>{
@@ -102,24 +105,21 @@ router.delete('/', (req, res, next) =>{
     mysql.getConnection((error, conn) => {
         if(error) { return res.status(500).send({ error: error })}
         conn.query(
-            `DELETE FROM products WHERE productId = ?`,
-            [req.body.productId],
+            `DELETE FROM orders WHERE orderId = ?`,
+            [req.body.orderId],
             (error, result, field) => {
                 conn.release();
 
                 if (error) { return res.status(500).send({ error: error }) }
                 const response = {
-                    mensagem: 'Produto removido com sucesso',
+                    mensagem: 'Pedido removido com sucesso',
                     request: {
                         tipo: 'POST',
-                        descricao: 'Retorna o produto atualizado',
-                        url: 'http://localhost:3000/produtos/',
+                        descricao: 'Insere um pedido novo',
+                        url: 'http://localhost:3000/pedidos/',
                         body: {
-                            name: 'String',
-                            price: 'Number',
-                            productImage: 'String',
-                            categoryId: 'Number'
-
+                            "productId": "Number",
+                            "quantity": "Number"
                         }
                     }
                 }

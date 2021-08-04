@@ -161,7 +161,7 @@ router.delete('/', (req, res, next) =>{
                     mensagem: 'Produto removido com sucesso',
                     request: {
                         tipo: 'POST',
-                        descricao: 'Retorna o produto atualizado',
+                        descricao: 'Insere um Produto novo',
                         url: 'http://localhost:3000/produtos/',
                         body: {
                             name: 'String',
