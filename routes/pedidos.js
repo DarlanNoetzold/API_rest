@@ -21,8 +21,12 @@ router.get('/', (req, res, next) =>{
                     orders: result.map(order =>{
                         return{
                             orderId: order.orderId,
-                            productId: order.productId,
                             quantity: order.quantity,
+                            product:{
+                                productId: order.productId,
+                                name: order.name,
+                                price: order.price,
+                            },
                             request: {
                                 tipo: 'GET',
                                 descricao: 'Retorna a documentação de um pedido em específico',
