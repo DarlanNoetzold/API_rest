@@ -8,16 +8,13 @@ router.get('/', (req, res, next) =>{
         conn.query(
             `SELECT orders.orderId,
                     orders.quantity,
-                    product.productId,
-                    product.name,
-                    product.price,
-            FROM orders
-            INNER JOIN products
-                ON products.productId = orders.productId`,
+                    products.productId,
+                    products.name,
+                    products.price
+            FROM orders INNER JOIN products ON products.productId = orders.productId;`,
             (error, result, fields) => {
                 if(error) { return res.status(500).send({ error: error})}
                 const response = {
-                    quantity: result.length,
                     orders: result.map(order =>{
                         return{
                             orderId: order.orderId,
