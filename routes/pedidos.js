@@ -6,7 +6,14 @@ router.get('/', (req, res, next) =>{
     mysql.getConnection((error, conn) =>{
         if(error) { return res.status(500).send({ error: error})}
         conn.query(
-            'SELECT * FROM orders;',
+            `SELECT orders.orderId,
+                    orders.quantity,
+                    product.productId,
+                    product.name,
+                    product.price,
+            FROM orders
+            INNER JOIN products
+                ON products.productId = orders.productId`,
             (error, result, fields) => {
                 if(error) { return res.status(500).send({ error: error})}
                 const response = {
