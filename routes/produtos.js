@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb){
+        cb(null, './uploads');
+    },
+    filename: function(req, file, cb){
+        let data = new Date().toISOString().replace(/:/g, '-') + '-';
+        cb(null, data + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
 
 router.get('/', (req, res, next) =>{
     mysql.getConnection((error, conn) =>{
@@ -34,7 +47,8 @@ router.get('/', (req, res, next) =>{
 
 });
 
-router.post('/',(req, res, next) =>{
+router.post('/', upload.single('productImage'), (req, res, next) =>{
+    console.log(req.file)
     const produto = {
         name: req.body.name,
         price: req.body.price,
@@ -46,7 +60,7 @@ router.post('/',(req, res, next) =>{
         if(error) { return res.status(500).send({ error: error})}
         conn.query(
             'INSERT INTO products (name, price, productImage, categoryId) VALUES (?,?,?,?)',
-            [req.body.name, req.body.price, req.body.productImage, req.body.categoryId],
+            [req.body.name, req.body.price, req.file.path, req.body.categoryId],
             (error, result, field) =>{
                 conn.release();
 
@@ -57,8 +71,8 @@ router.post('/',(req, res, next) =>{
                         productId: result.productId,
                         name: req.body.name,
                         price: req.body.price,
-                        categoryId: req.body.categoryId,
                         productImage: req.body.productImage,
+                        categoryId: req.body.categoryId,
                         request: {
                             tipo: 'POST',
                             descricao: 'Retorna todos os produtos',
@@ -161,7 +175,7 @@ router.delete('/', (req, res, next) =>{
                     mensagem: 'Produto removido com sucesso',
                     request: {
                         tipo: 'POST',
-                        descricao: 'Insere um Produto novo',
+                        descricao: 'Insere um produto',
                         url: 'http://localhost:3000/produtos/',
                         body: {
                             name: 'String',
