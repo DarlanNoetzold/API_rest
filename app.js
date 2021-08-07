@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
+const rotaUser = require('./routes/user');
 
 app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
@@ -28,6 +29,7 @@ app.use((req, res, next) =>{
 
 app.use('/produtos', rotaProdutos);
 app.use('/pedidos', rotaPedidos);
+app.use('/user', rotaUser);
 
 // Tratando Erros
 app.use((req, res, next) =>{
