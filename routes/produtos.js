@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
 const multer = require('multer');
+const login = require('../middleware/login');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb){
@@ -47,7 +48,7 @@ router.get('/', (req, res, next) =>{
 
 });
 
-router.post('/', upload.single('productImage'), (req, res, next) =>{
+router.post('/', upload.single('productImage'), login.required, (req, res, next) =>{
     console.log(req.file)
     const produto = {
         name: req.body.name,
@@ -71,7 +72,7 @@ router.post('/', upload.single('productImage'), (req, res, next) =>{
                         productId: result.productId,
                         name: req.body.name,
                         price: req.body.price,
-                        productImage: req.body.productImage,
+                        productImage: req.file.path,
                         categoryId: req.body.categoryId,
                         request: {
                             tipo: 'POST',
@@ -123,7 +124,7 @@ router.get('/:id_produto', (req, res, next) =>{
     
 });
 
-router.patch('/', (req, res, next) =>{
+router.patch('/', login.required, (req, res, next) =>{
     mysql.getConnection((error, conn) => {
         if(error) { return res.status(500).send({ error: error })}
             conn.query(
@@ -161,7 +162,7 @@ router.patch('/', (req, res, next) =>{
 });
 
 
-router.delete('/', (req, res, next) =>{
+router.delete('/', login.required, (req, res, next) =>{
     mysql.getConnection((error, conn) => {
         if(error) { return res.status(500).send({ error: error })}
         conn.query(
