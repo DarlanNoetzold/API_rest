@@ -1,0 +1,7 @@
+node_modules/
+.vscode
+uploads/*
+*session.sql
+*.p12
+qrcodes/*
+nodemon.json
