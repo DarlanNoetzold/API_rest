@@ -12,6 +12,7 @@
 * Na rota de produto é possível cadstrar um produto, buscá-lo pelo seu ID, retornar todos os produtos, atualizar um produto e/ou deletar um produto.
 * Na rota de pedido é possível cadstrar um pedido, buscá-lo pelo seu ID, retornar todos os pedidos e/ou deletar um pedido.
 * Já na rota de usuário é possível cadastrar um novo usuário ou fazer login.. para obter o token que será usado como Authorization.
+* Projeto ainda sendo formatado... in development...
 
 
 Link da API: https://rest-api-darlan.herokuapp.com/
